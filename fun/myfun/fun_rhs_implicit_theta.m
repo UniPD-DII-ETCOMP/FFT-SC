@@ -1,0 +1,29 @@
+function [FUN] = fun_rhs_implicit_theta(x0,u,u0,...
+                            theta,tau,...
+                            Ind,d,idxF,idxFx,idxFy,...
+                            idxFz,Kt,L,M,N,...
+                            circ_L,Ae,Aee,Ae1x,Ae1y,Ae1z)
+%%
+num_curr=length(idxF);
+%%
+Jout=zeros(L,M,N,3);
+Jout(idxF)=x0(1:num_curr); 
+[~,normJ2]=fun_my_postRT2_bis(Jout,Kt,Ae1x,Ae1y,Ae1z,d);
+normJ=normJ2.^0.5;
+%
+[z_realF]=fun_resistance_NL(normJ,Ind,Kt,L,M,N,Ae,idxF);
+z_realx=zeros(L,M,N);
+z_realx(idxFx)=z_realF(idxFx);
+z_realx_loc=z_realx(idxFx);
+z_realy=zeros(L,M,N);
+z_realy(idxFy)=z_realF(Kt+idxFy);
+z_realy_loc=z_realy(idxFy);
+z_realz=zeros(L,M,N);
+z_realz(idxFz)=z_realF(2*Kt+idxFz);
+z_realz_loc=z_realz(idxFz);
+y=multiplyMATVECT_EDDY_THTAU(x0,(1-theta),-tau,circ_L,...
+    z_realx_loc,z_realy_loc,z_realz_loc,...
+    idxFx,idxFy,idxFz,d,Aee,L,M,N);
+%%
+FUN=y-theta*u-(1-theta)*u0;
+end
