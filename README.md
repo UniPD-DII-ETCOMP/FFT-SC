@@ -1,1 +1,1 @@
-# FFT_SC
+# FFT-SC
